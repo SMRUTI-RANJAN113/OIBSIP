@@ -102,14 +102,3 @@ Full explanations of what each service does and the security risk it
 poses are documented in `nmap_scan_results.txt`.
 
 ---
-
-## Repository Structure
-```
-.
-├── README.md
-├── nmap_scan_results.txt
-└── screenshots/
-    ├── basic_scan.png
-    ├── service_version_scan.png
-    └── os_detection_scan.png
-```
