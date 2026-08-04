@@ -1,0 +1,159 @@
+====================================================================
+NMAP SCAN RESULTS - TASK 1: Basic Network Scanning with Nmap
+====================================================================
+Target: 127.0.0.1 (localhost)
+Nmap Version: 7.99
+Scanner Platform: Windows (C:\Program Files (x86)>nmap)
+Date of Scans: 2026-08-03
+====================================================================
+
+
+--------------------------------------------------------------------
+SCAN 1: BASIC SCAN
+Command: nmap 127.0.0.1
+--------------------------------------------------------------------
+Starting Nmap 7.99 ( https://nmap.org ) at 2026-08-03 19:37 -0700
+mass_dns: warning: Unable to determine any DNS servers. Reverse DNS
+is disabled. Try using --system-dns or specify valid servers with
+--dns-servers
+
+Nmap scan report for 127.0.0.1
+Host is up (0.00015s latency).
+Not shown: 998 closed tcp ports (reset)
+
+PORT     STATE  SERVICE
+135/tcp  open   msrpc
+445/tcp  open   microsoft-ds
+
+Nmap done: 1 IP address (1 host up) scanned
+
+
+--------------------------------------------------------------------
+SCAN 2: SERVICE VERSION SCAN
+Command: nmap -sV 127.0.0.1
+--------------------------------------------------------------------
+Starting Nmap 7.99 ( https://nmap.org ) at 2026-08-03 19:38 -0700
+mass_dns: warning: Unable to determine any DNS servers. Reverse DNS
+is disabled. Try using --system-dns or specify valid servers with
+--dns-servers
+
+Nmap scan report for 127.0.0.1
+Host is up (0.000089s latency).
+Not shown: 998 closed tcp ports (reset)
+
+PORT     STATE  SERVICE       VERSION
+135/tcp  open   msrpc         Microsoft Windows RPC
+445/tcp  open   microsoft-ds?
+
+Service Info: OS: Windows; CPE: cpe:/o:microsoft:windows
+
+Service detection performed. Please report any incorrect results at
+https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 6.73 seconds
+
+
+--------------------------------------------------------------------
+SCAN 3: OS DETECTION SCAN
+Command: nmap -O 127.0.0.1
+--------------------------------------------------------------------
+Starting Nmap 7.99 ( https://nmap.org ) at 2026-08-03 19:39 -0700
+mass_dns: warning: Unable to determine any DNS servers. Reverse DNS
+is disabled. Try using --system-dns or specify valid servers with
+--dns-servers
+
+Nmap scan report for 127.0.0.1
+Host is up (0.00040s latency).
+Not shown: 998 closed tcp ports (reset)
+
+PORT     STATE  SERVICE
+135/tcp  open   msrpc
+445/tcp  open   microsoft-ds
+
+Device type: general purpose
+Running: Microsoft Windows 11
+OS CPE: cpe:/o:microsoft:windows_11
+OS details: Microsoft Windows 11 24H2 - 25H2
+Network Distance: 0 hops
+
+OS detection performed. Please report any incorrect results at
+https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 1.37 seconds
+
+
+====================================================================
+SUMMARY OF OPEN PORTS FOUND
+====================================================================
+
+PORT     STATE   SERVICE          VERSION
+135/tcp  open    msrpc            Microsoft Windows RPC
+445/tcp  open    microsoft-ds     Microsoft-DS (SMB over TCP)
+
+
+====================================================================
+SECURITY ANALYSIS OF EACH OPEN PORT
+====================================================================
+
+--------------------------------------------------------------------
+PORT 135/tcp - MSRPC (Microsoft RPC Endpoint Mapper)
+--------------------------------------------------------------------
+What it does:
+Port 135 runs the Microsoft RPC (Remote Procedure Call) Endpoint
+Mapper. It allows a client to ask a Windows machine which port a
+particular RPC-based service is currently listening on (things like
+DCOM, Exchange, and various Windows management services use this).
+It is essentially a "directory service" for other RPC services
+running on the host.
+
+Security risk:
+- HIGH RISK if exposed externally. Port 135 has historically been
+  a major attack vector, most famously exploited by the Blaster
+  worm (2003) and used in several DCOM-based remote code execution
+  vulnerabilities.
+- It reveals information about other services running on the
+  machine, which can help an attacker plan further attacks
+  (reconnaissance).
+- On a properly configured machine, this port should NEVER be
+  exposed to the public internet. It is intended for internal
+  network / Active Directory communication only.
+- Mitigation: Block port 135 at the perimeter firewall, only allow
+  it on trusted internal network segments, and keep Windows patched.
+
+
+--------------------------------------------------------------------
+PORT 445/tcp - Microsoft-DS (SMB - Server Message Block)
+--------------------------------------------------------------------
+What it does:
+Port 445 is used by SMB (Server Message Block) directly over TCP/IP
+(replacing the older NetBIOS-based SMB on port 139). SMB is the
+protocol Windows uses for file sharing, printer sharing, and
+inter-process communication between machines on a network.
+
+Security risk:
+- VERY HIGH RISK if exposed externally. This is one of the most
+  attacked ports in the world. It was the port exploited by the
+  EternalBlue vulnerability (MS17-010), which powered the WannaCry
+  and NotPetya ransomware outbreaks.
+- SMB is also a common target for brute-force login attempts,
+  relay attacks (SMB relay/NTLM relay), and lateral movement once
+  an attacker is inside a network.
+- Like port 135, this should never be open to the public internet.
+  It should be restricted to trusted internal networks only, kept
+  fully patched, and ideally protected with SMB signing enabled.
+
+
+====================================================================
+OVERALL FINDINGS
+====================================================================
+- Only 2 ports were found open on the scanned host (127.0.0.1):
+  135/tcp (msrpc) and 445/tcp (microsoft-ds).
+- Both ports are standard Windows networking ports, confirmed by
+  the -sV scan (Service Info: OS: Windows) and the -O scan, which
+  identified the target as Microsoft Windows 11 (24H2 - 25H2).
+- Both open ports are historically significant attack surfaces
+  (Blaster, EternalBlue/WannaCry) and should be firewalled from
+  any untrusted network.
+- Since this scan was performed against localhost (127.0.0.1), the
+  exposure is confined to the local machine itself; the same
+  findings would represent a much higher risk if these ports were
+  reachable from an external or untrusted network.
+====================================================================
